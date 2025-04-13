@@ -82,4 +82,16 @@ class ContractorsOrSuppliersController extends Controller
         $contractors = ContractorsOrSuppliers::paginate(5);
         return response()->json($contractors);
     }
+
+    public function byMarket($market_id)
+    {
+        $contractors = ContractorsOrSuppliers::where('market_id', $market_id)->paginate(5);
+        return response()->json($contractors);
+    }
+
+    public function bySubmarket($submarket_id)
+    {
+        $contractors = ContractorsOrSuppliers::where('submarket_id', $submarket_id)->paginate(5);
+        return response()->json($contractors);
+    }
 }

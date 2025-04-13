@@ -10,12 +10,24 @@ class MarketController extends Controller
 {
     public function index()
     {
-        $markets = Market::all();
+        // Eager load the 'user' relationship
+        $markets = Market::with('user')->get();
+
+        // Return the response with the user's name included
         return response()->json([
             'message' => 'Markets retrieved successfully.',
-            'data' => $markets
+            'data' => $markets->map(function ($market) {
+                return [
+                    'id' => $market->id,
+                    'name' => $market->name,
+                    'created_by' => $market->user ? $market->user->name : 'Unknown', // Show the user name or 'Unknown'
+                    'created_at' => $market->created_at,
+                    'updated_at' => $market->updated_at,
+                ];
+            })
         ]);
     }
+
 
     public function store(Request $request)
     {
@@ -58,6 +70,30 @@ class MarketController extends Controller
 
         return response()->json([
             'message' => 'Market deleted successfully.'
+        ]);
+    }
+
+
+    public function storeByUser(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+        ]);
+
+        $user = $request->user(); // Get user from token
+
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+
+        $market = Market::create([
+            'name' => $request->name,
+            'created_by' => $user->id,  // Assign created_by from the authenticated user
+        ]);
+
+        return response()->json([
+            'message' => 'Market created by user.',
+            'data' => $market
         ]);
     }
 }

@@ -27,13 +27,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Admin-only routes
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     // Market
-    Route::get('/markets', [MarketController::class, 'index']);
     Route::post('/markets', [MarketController::class, 'store']);
     Route::put('/markets/{id}', [MarketController::class, 'update']);
     Route::delete('/markets/{id}', [MarketController::class, 'destroy']);
 
     // Submarket
-    Route::get('/submarkets', [SubmarketController::class, 'index']);
     Route::post('/submarkets', [SubmarketController::class, 'store']);
     Route::put('/submarkets/{id}', [SubmarketController::class, 'update']);
     Route::delete('/submarkets/{id}', [SubmarketController::class, 'destroy']);
@@ -55,11 +53,25 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
 
 // Regular authenticated user routes
 Route::middleware('auth:sanctum')->group(function () {
+    // ✅ User creates Market & Submarket (auto assign user_id from token)
+    Route::post('/markets/user', [MarketController::class, 'storeByUser']);
+    Route::post('/submarkets/user', [SubmarketController::class, 'storeByUser']);
+
     // Contractors or Suppliers
     Route::get('/contractors-or-suppliers', [ContractorsOrSuppliersController::class, 'index']);
     Route::post('/contractors-or-suppliers', [ContractorsOrSuppliersController::class, 'store']);
 
+    // ✅ Get contractors/suppliers by market
+    Route::get('/contractors-or-suppliers/by-market/{market_id}', [ContractorsOrSuppliersController::class, 'byMarket']);
+    
+    // ✅ Get contractors/suppliers by submarket
+    Route::get('/contractors-or-suppliers/by-submarket/{submarket_id}', [ContractorsOrSuppliersController::class, 'bySubmarket']);
+
     // Feedbacks
     Route::post('/feedbacks', [FeedbackController::class, 'store']);
     Route::get('/feedbacks/{id}', [FeedbackController::class, 'getByContractor']);
+
+    Route::get('/submarkets', [SubmarketController::class, 'index']);
+    Route::get('/markets', [MarketController::class, 'index']);
+
 });
