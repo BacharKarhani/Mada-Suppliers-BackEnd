@@ -61,11 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/contractors-or-suppliers', [ContractorsOrSuppliersController::class, 'index']);
     Route::post('/contractors-or-suppliers', [ContractorsOrSuppliersController::class, 'store']);
 
-    // ✅ Get contractors/suppliers by market
-    Route::get('/contractors-or-suppliers/by-market/{market_id}', [ContractorsOrSuppliersController::class, 'byMarket']);
-    
-    // ✅ Get contractors/suppliers by submarket
-    Route::get('/contractors-or-suppliers/by-submarket/{submarket_id}', [ContractorsOrSuppliersController::class, 'bySubmarket']);
+    Route::get('/contractors-or-suppliers/filter', [ContractorsOrSuppliersController::class, 'filter']);
 
     // Feedbacks
     Route::post('/feedbacks', [FeedbackController::class, 'store']);

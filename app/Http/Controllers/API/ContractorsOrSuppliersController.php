@@ -83,15 +83,30 @@ class ContractorsOrSuppliersController extends Controller
         return response()->json($contractors);
     }
 
-    public function byMarket($market_id)
+    public function filter(Request $request)
     {
-        $contractors = ContractorsOrSuppliers::where('market_id', $market_id)->paginate(5);
-        return response()->json($contractors);
+        $query = ContractorsOrSuppliers::query();
+    
+        // Optional filtering by market
+        if ($request->filled('market_id')) {
+            $query->where('market_id', $request->market_id);
+        }
+    
+        // Optional filtering by submarket
+        if ($request->filled('submarket_id')) {
+            $query->where('submarket_id', $request->submarket_id);
+        }
+    
+        $results = $query->get();
+    
+        if ($results->isEmpty()) {
+            return response()->json([
+                'message' => 'No data found with this filter'
+            ], 404);
+        }
+    
+        return response()->json($results);
     }
-
-    public function bySubmarket($submarket_id)
-    {
-        $contractors = ContractorsOrSuppliers::where('submarket_id', $submarket_id)->paginate(5);
-        return response()->json($contractors);
-    }
+    
+    
 }
