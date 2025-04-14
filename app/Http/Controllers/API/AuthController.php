@@ -47,27 +47,32 @@ class AuthController extends Controller
 
     /** LOGIN */
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required'
+    ]);
 
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-
-
-        
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        if ($user->status !== 'active') {
-            return response()->json(['message' => 'Account is not yet approved by admin.'], 403);
-        }
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['token' => $token, 'user' => $user]);
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['message' => 'Invalid credentials'], 401);
     }
+
+    if ($user->status !== 'active') {
+        return response()->json(['message' => 'Account is not yet approved by admin.'], 403);
+    }
+
+    // Load the role name
+    $user->load('role');
+
+    $token = $user->createToken('auth_token')->plainTextToken;
+    return response()->json([
+        'token' => $token,
+        'user' => $user,
+        'role_name' => $user->role->name // return the role name here
+    ]);
+}
 
     /** LOGOUT */
     public function logout(Request $request)

@@ -24,4 +24,10 @@ class User extends Authenticatable
     protected $casts = [
         // 'password' => 'hashed'
     ];
+
+    // Relationship with Role model
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
 }
