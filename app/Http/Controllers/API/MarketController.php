@@ -8,23 +8,33 @@ use App\Http\Controllers\Controller;
 
 class MarketController extends Controller
 {
-    public function index()
+public function index(Request $request)
     {
-        // Eager load the 'user' relationship
-        $markets = Market::with('user')->get();
+        // Default values for pagination
+        $perPage = $request->input('limit', 5); // Default to 6 items per page if not provided
+        $page = $request->input('page', 1); // Default to the first page if not provided
 
-        // Return the response with the user's name included
+        // Eager load the 'user' relationship and paginate the results
+        $markets = Market::with('user')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        // Return the response with pagination data
         return response()->json([
             'message' => 'Markets retrieved successfully.',
             'data' => $markets->map(function ($market) {
                 return [
                     'id' => $market->id,
                     'name' => $market->name,
-                    'created_by' => $market->user ? $market->user->name : 'Unknown', // Show the user name or 'Unknown'
+                    'created_by' => $market->user ? $market->user->name : 'Unknown',
                     'created_at' => $market->created_at,
                     'updated_at' => $market->updated_at,
                 ];
-            })
+            }),
+            'pagination' => [
+                'current_page' => $markets->currentPage(),
+                'total_pages' => $markets->lastPage(),
+                'total_items' => $markets->total(),
+            ]
         ]);
     }
 
