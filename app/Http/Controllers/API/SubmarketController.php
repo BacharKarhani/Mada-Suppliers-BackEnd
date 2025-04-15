@@ -8,19 +8,22 @@ use App\Http\Controllers\Controller;
 
 class SubmarketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Eager load the 'market' and 'user' relationships
-        $submarkets = Submarket::with(['market', 'user'])->get();
+        // Get the current page or default to 1
+        $perPage = 5;
 
-        // Return the response with the user's name included
+        // Eager load 'market' and 'user' relationships with pagination
+        $submarkets = Submarket::with(['market', 'user'])->paginate($perPage);
+
+        // Return the paginated response with data transformed
         return response()->json([
             'message' => 'Submarkets retrieved successfully.',
-            'data' => $submarkets->map(function ($submarket) {
+            'data' => $submarkets->getCollection()->map(function ($submarket) {
                 return [
                     'id' => $submarket->id,
                     'name' => $submarket->name,
-                    'created_by' => $submarket->user ? $submarket->user->name : 'Unknown', // Display the user's name or 'Unknown'
+                    'created_by' => $submarket->user ? $submarket->user->name : 'Unknown',
                     'market' => [
                         'id' => $submarket->market->id,
                         'name' => $submarket->market->name,
@@ -29,10 +32,36 @@ class SubmarketController extends Controller
                     'created_at' => $submarket->created_at,
                     'updated_at' => $submarket->updated_at,
                 ];
-            })
+            }),
+            'current_page' => $submarkets->currentPage(),
+            'last_page' => $submarkets->lastPage(),
+            'per_page' => $submarkets->perPage(),
+            'total' => $submarkets->total(),
         ]);
     }
 
+    public function show($id) 
+    {
+        // Find the submarket by its ID
+        $submarket = Submarket::with(['market', 'user'])->findOrFail($id);
+
+        // Return the submarket data as a response
+        return response()->json([
+            'message' => 'Submarket retrieved successfully.',
+            'data' => [
+                'id' => $submarket->id,
+                'name' => $submarket->name,
+                'created_by' => $submarket->user ? $submarket->user->name : 'Unknown',
+                'market' => [
+                    'id' => $submarket->market->id,
+                    'name' => $submarket->market->name,
+                ],
+                'market_id' => $submarket->market_id,
+                'created_at' => $submarket->created_at,
+                'updated_at' => $submarket->updated_at,
+            ],
+        ]);
+    }
 
     public function store(Request $request)
     {
@@ -106,5 +135,4 @@ class SubmarketController extends Controller
             'data' => $submarket
         ]);
     }
-    
 }

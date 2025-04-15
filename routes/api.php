@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::post('/markets', [MarketController::class, 'store']);
     Route::put('/markets/{id}', [MarketController::class, 'update']);
     Route::delete('/markets/{id}', [MarketController::class, 'destroy']);
+Route::get('submarkets/{id}', [SubmarketController::class, 'show']);
 
     // Submarket
     Route::post('/submarkets', [SubmarketController::class, 'store']);
@@ -70,4 +71,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/submarkets', [SubmarketController::class, 'index']);
     Route::get('/markets', [MarketController::class, 'index']);
 
+
 });
+Route::get('/test', [AuthController::class, 'test']);
