@@ -135,4 +135,30 @@ class SubmarketController extends Controller
             'data' => $submarket
         ]);
     }
+    
+    public function allSubmarkets()
+{
+    // Retrieve all submarkets without pagination and eager load relationships
+    $submarkets = Submarket::with(['market', 'user'])->get();
+
+    // Return all submarkets in the response
+    return response()->json([
+        'message' => 'All submarkets retrieved successfully.',
+        'data' => $submarkets->map(function ($submarket) {
+            return [
+                'id' => $submarket->id,
+                'name' => $submarket->name,
+                'created_by' => $submarket->user ? $submarket->user->name : 'Unknown',
+                'market' => [
+                    'id' => $submarket->market->id,
+                    'name' => $submarket->market->name,
+                ],
+                'market_id' => $submarket->market_id,
+                'created_at' => $submarket->created_at,
+                'updated_at' => $submarket->updated_at,
+            ];
+        }),
+    ]);
+}
+
 }
