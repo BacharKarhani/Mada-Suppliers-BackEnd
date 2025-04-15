@@ -9,36 +9,54 @@ use App\Http\Controllers\Controller;
 class SubmarketController extends Controller
 {
     public function index(Request $request)
-    {
-        // Get the current page or default to 1
+{
+    // Check if pagination is disabled via query param (e.g., ?paginate=false)
+    $shouldPaginate = filter_var($request->query('paginate', true), FILTER_VALIDATE_BOOLEAN);
+
+    if ($shouldPaginate) {
         $perPage = 5;
-
-        // Eager load 'market' and 'user' relationships with pagination
         $submarkets = Submarket::with(['market', 'user'])->paginate($perPage);
+        $data = $submarkets->getCollection();
+    } else {
+        $submarkets = Submarket::with(['market', 'user'])->get();
+        $data = $submarkets;
+    }
 
-        // Return the paginated response with data transformed
+    // Format the data
+    $formattedData = $data->map(function ($submarket) {
+        return [
+            'id' => $submarket->id,
+            'name' => $submarket->name,
+            'created_by' => $submarket->user ? $submarket->user->name : 'Unknown',
+            'market' => [
+                'id' => $submarket->market->id,
+                'name' => $submarket->market->name,
+            ],
+            'market_id' => $submarket->market_id,
+            'created_at' => $submarket->created_at,
+            'updated_at' => $submarket->updated_at,
+        ];
+    });
+
+    // If pagination is disabled, no pagination meta is returned
+    if (!$shouldPaginate) {
         return response()->json([
             'message' => 'Submarkets retrieved successfully.',
-            'data' => $submarkets->getCollection()->map(function ($submarket) {
-                return [
-                    'id' => $submarket->id,
-                    'name' => $submarket->name,
-                    'created_by' => $submarket->user ? $submarket->user->name : 'Unknown',
-                    'market' => [
-                        'id' => $submarket->market->id,
-                        'name' => $submarket->market->name,
-                    ],
-                    'market_id' => $submarket->market_id,
-                    'created_at' => $submarket->created_at,
-                    'updated_at' => $submarket->updated_at,
-                ];
-            }),
-            'current_page' => $submarkets->currentPage(),
-            'last_page' => $submarkets->lastPage(),
-            'per_page' => $submarkets->perPage(),
-            'total' => $submarkets->total(),
+            'data' => $formattedData,
         ]);
     }
+
+    // If pagination is enabled, include pagination meta
+    return response()->json([
+        'message' => 'Submarkets retrieved successfully.',
+        'data' => $formattedData,
+        'current_page' => $submarkets->currentPage(),
+        'last_page' => $submarkets->lastPage(),
+        'per_page' => $submarkets->perPage(),
+        'total' => $submarkets->total(),
+    ]);
+}
+
 
     public function show($id) 
     {
