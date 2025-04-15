@@ -39,6 +39,24 @@ public function index(Request $request)
     }
 
 
+public function allMarkets()
+{
+    $markets = Market::with('user')->get();
+
+    return response()->json([
+        'message' => 'All markets retrieved successfully.',
+        'data' => $markets->map(function ($market) {
+            return [
+                'id' => $market->id,
+                'name' => $market->name,
+                'created_by' => $market->user ? $market->user->name : 'Unknown',
+                'created_at' => $market->created_at,
+                'updated_at' => $market->updated_at,
+            ];
+        }),
+    ]);
+}
+
     public function store(Request $request)
     {
         $request->validate([
