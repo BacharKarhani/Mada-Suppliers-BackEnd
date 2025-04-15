@@ -71,7 +71,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/submarkets', [SubmarketController::class, 'index']);
     Route::get('/markets', [MarketController::class, 'index']);
 Route::get('/markets/all', [MarketController::class, 'allMarkets']);
-Route::get('/submarkets/all', [SubmarketController::class, 'allSubmarkets']);
 
 
 });
