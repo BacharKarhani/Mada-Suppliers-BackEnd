@@ -50,6 +50,8 @@ Route::get('submarkets/{id}', [SubmarketController::class, 'show']);
 
     // Feedbacks (admin action)
     Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
+    Route::get('/export-contractors-or-suppliers', [ContractorsOrSuppliersController::class, 'export']);
+
 });
 
 // Regular authenticated user routes
@@ -71,6 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/submarkets', [SubmarketController::class, 'index']);
     Route::get('/markets', [MarketController::class, 'index']);
 Route::get('/markets/all', [MarketController::class, 'allMarkets']);
+Route::get('contractors-or-suppliers/{id}', [ContractorsOrSuppliersController::class, 'show']);
 
 
 });

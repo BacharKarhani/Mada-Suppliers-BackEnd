@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ContractorsOrSuppliers;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ContractorsOrSuppliersExport;
 
 class ContractorsOrSuppliersController extends Controller
 {
@@ -33,6 +35,21 @@ class ContractorsOrSuppliersController extends Controller
             'message' => 'Contractor or supplier added successfully.',
             'data' => $record
         ], 201);
+    }
+    
+    // ✅ Get contractor or supplier by ID (everyone)
+    public function show($id)
+    {
+        $contractor = ContractorsOrSuppliers::find($id);
+
+        if (!$contractor) {
+            return response()->json(['message' => 'Not found.'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Contractor or supplier found.',
+            'data' => $contractor
+        ]);
     }
 
     // ✅ Update contractor or supplier (admin only)
@@ -83,6 +100,7 @@ class ContractorsOrSuppliersController extends Controller
         return response()->json($contractors);
     }
 
+    // ✅ Filter contractors or suppliers (optional)
     public function filter(Request $request)
     {
         $query = ContractorsOrSuppliers::query();
@@ -107,6 +125,17 @@ class ContractorsOrSuppliersController extends Controller
     
         return response()->json($results);
     }
-    
-    
+
+    // ✅ Export contractors or suppliers to Excel (everyone)
+    public function export()
+    {
+        // Get the current date and time in a format like 'Y-m-d_H-i-s'
+        $timestamp = now()->format('Y-m-d_H-i-s');
+
+        // Generate the filename with the timestamp
+        $filename = "contractors_or_suppliers_{$timestamp}.xlsx";
+
+        // Download the Excel file with the dynamic filename
+        return Excel::download(new ContractorsOrSuppliersExport, $filename);
+    }
 }
