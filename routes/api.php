@@ -76,5 +76,6 @@ Route::get('contractors-or-suppliers/{id}', [ContractorsOrSuppliersController::c
     Route::get('/export-contractors-or-suppliers', [ContractorsOrSuppliersController::class, 'export']);
 
 
+    
 });
 Route::get('/test', [AuthController::class, 'test']);
